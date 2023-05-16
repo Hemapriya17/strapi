@@ -1,44 +1,69 @@
-import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export const AddReview = () => {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [rating, setRating] = useState('');
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: "",
+    body: "",
+    rating: 1,
+  });
 
-  const handleSubmit = async (event) => {
+  function handleSubmit(event) {
     event.preventDefault();
-    const response = await fetch('http://localhost:1337/api/reviews', {
+
+    fetch('http://localhost:1337/api/reviews', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ title, body, rating })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
+      .then(() => {
+        alert('Review added successfully!');
+        navigate('/');
+      })
+      .catch((error) => {
+        console.error('Error adding review:', error);
+      });
+  }
+
+  function handleChange(event) {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
     });
-    if (response.ok) {
-      // do something after successful submission
-      setTitle('');
-      setBody('');
-      setRating('');
-    }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit}>
       <label>
         Title:
-        <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          required
+        />
       </label>
-      <br />
       <label>
         Body:
-        <textarea value={body} onChange={(event) => setBody(event.target.value)} />
+        <textarea
+          name="body"
+          value={formData.body}
+          onChange={handleChange}
+          required
+        />
       </label>
-      <br />
       <label>
         Rating:
-        <input type="number" value={rating} onChange={(event) => setRating(event.target.value)} />
+        <input
+          type="number"
+          name="rating"
+          value={formData.rating}
+          onChange={handleChange}
+          required
+        />
       </label>
-      <br />
       <button type="submit">Submit</button>
     </form>
   );
